@@ -46,6 +46,20 @@ ul,ol{padding-left:1.3em}li{margin:4px 0}
 .pos small{display:block;font-weight:400;color:var(--muted)}
 .caption{max-width:640px;margin:8px auto 0;color:var(--muted);font-size:.93rem;text-align:center}
 .hint{max-width:640px;margin:6px auto 0;color:var(--muted);font-size:.82rem;text-align:center}
+/* x-ray */
+.xr-thumbs{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:4px 0 12px}
+.xr-thumb{border:2px solid var(--line);background:#fff;border-radius:8px;padding:6px;cursor:pointer;width:150px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text);font-size:.9rem;font-weight:600}
+.xr-thumb[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+.xr-thumb .ph{width:100%;aspect-ratio:3/4;background:#000;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.xr-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.xr-stage{position:relative;background:#000;border-radius:6px;overflow:hidden;max-width:640px;margin:0 auto;aspect-ratio:3/4;cursor:zoom-in}
+.xr-stage img{width:100%;height:100%;object-fit:contain;display:block}
+.xr-stage .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:.95rem;pointer-events:none}
+.xr-print{display:none}
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+.lightbox button{position:absolute;top:10px;right:10px;border:1px solid #888;background:#111;color:#fff;border-radius:6px;padding:7px 12px;font-size:.95rem;cursor:pointer}
 /* files */
 .files li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:10px 0;list-style:none;flex-wrap:wrap}
 .files ul{padding:0;margin:0}
@@ -53,7 +67,10 @@ ul,ol{padding-left:1.3em}li{margin:4px 0}
 footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);font-size:.88rem;text-align:center}
 @media (max-width:600px){section{padding:16px 14px}.bar h1{font-size:1rem}body{font-size:15.5px}}
 @media print{
-  header.top,#viewer,#files,.langs,nav.tabs{display:none!important}
+  header.top,#viewer,#files,.langs,nav.tabs,.lightbox,#xray .xr-thumbs,#xray .xr-stage,#xray .caption,#xray .hint{display:none!important}
+  #xray .xr-print{display:flex!important;gap:12pt;justify-content:center}
+  #xray .xr-print figure{margin:0;width:48%;text-align:center;break-inside:avoid;page-break-inside:avoid}
+  #xray .xr-print img{width:100%;max-height:8.2in;object-fit:contain}
   body{background:#fff;font-size:11pt}
   section{border:0;padding:0;margin:0 0 14pt}
   .block{background:#fff;border-left:3px solid #555}
@@ -73,6 +90,7 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
   </div>
   <nav class="tabs" aria-label="Sections">
     <a href="#viewer"><span class="en">MRI Viewer</span><span class="es">Visor de RM</span></a>
+    <a href="#xray"><span class="en">X-ray Viewer</span><span class="es">Visor de radiografías</span></a>
     <a href="#reports"><span class="en">Reports</span><span class="es">Informes</span></a>
     <a href="#plan"><span class="en">Diagnosis and Plan</span><span class="es">Diagnóstico y plan</span></a>
     <a href="#research"><span class="en">Research Summary</span><span class="es">Resumen de la evidencia</span></a>
@@ -98,6 +116,25 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
   <p class="caption" id="caption"></p>
   <p class="hint"><span class="en">Use the slider, mouse wheel, swipe, or the left/right arrow keys to move through the slices.</span><span class="es">Use el control deslizante, la rueda del mouse, deslice con el dedo o use las flechas izquierda/derecha del teclado para recorrer los cortes.</span></p>
 </section>
+
+<!-- 1b. X-RAY VIEWER -->
+<section id="xray">
+  <h2><span class="en">X-ray Viewer</span><span class="es">Visor de radiografías</span></h2>
+  <p class="meta en">Cervical spine X-ray, Georgetown University Hospital. Exam date: October 9, 2026.<br>Two views were taken: AP (front) and lateral (side). No flexion or extension views were taken.</p>
+  <p class="meta es">Radiografía de columna cervical, Georgetown University Hospital. Fecha del estudio: 9 de octubre de 2026.<br>Se tomaron dos proyecciones: anteroposterior (AP, de frente) y lateral (de perfil). No se tomaron proyecciones en flexión ni en extensión.</p>
+  <div class="xr-thumbs" id="xrThumbs" role="group" aria-label="X-ray views"></div>
+  <div class="xr-stage" id="xrStage" tabindex="0" role="button" aria-label="Open full size">
+    <img id="xrImg" alt="">
+    <div class="loading" id="xrLoading"><span class="en">Loading images...</span><span class="es">Cargando imágenes...</span></div>
+  </div>
+  <p class="caption" id="xrCaption"></p>
+  <p class="hint"><span class="en">Tap a view to select it. Tap or click the large image to open it full size.</span><span class="es">Toque una proyección para seleccionarla. Toque o haga clic en la imagen grande para verla en tamaño completo.</span></p>
+  <div class="xr-print" id="xrPrint"></div>
+</section>
+<div class="lightbox" id="xrBox" role="dialog" aria-modal="true" aria-label="X-ray">
+  <img id="xrBoxImg" alt="">
+  <button type="button" id="xrClose"><span class="en">Close</span><span class="es">Cerrar</span></button>
+</div>
 
 <!-- 2. REPORTS -->
 <section id="reports">
@@ -276,6 +313,7 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
     $("nextBtn").setAttribute("aria-label",UI[lang].next);
     $("seriesButtons").setAttribute("aria-label",UI[lang].series);
     renderSeriesButtons(); render();
+    if(typeof renderXray==="function")renderXray();
   }
 
   // ---- loading ----
@@ -360,6 +398,57 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
     else if(e.key==="ArrowLeft"){step(-1);e.preventDefault();}
   });
 
+  // ---- x-ray viewer ----
+  var XR=[
+    {id:"ap",name:{en:"AP (front)",es:"AP (de frente)"},
+     cap:{en:"AP view. Front view of the cervical spine, October 9, 2026.",es:"Proyección AP. Vista de frente de la columna cervical, 9 de octubre de 2026."}},
+    {id:"lat",name:{en:"Lateral (side)",es:"Lateral (de perfil)"},
+     cap:{en:"Lateral view. Side view of the cervical spine, October 9, 2026.",es:"Proyección lateral. Vista de perfil de la columna cervical, 9 de octubre de 2026."}}
+  ];
+  var XUI={en:{views:"X-ray views",open:"Open full size",img:"Cervical spine X-ray, {s} view"},
+           es:{views:"Proyecciones de radiografía",open:"Ver en tamaño completo",img:"Radiografía de columna cervical, proyección {s}"}};
+  var xrStore={}, xrCur=XR[0];
+  window.caseAddXray=function(id,uri){xrStore[id]=uri;renderXray();};
+  function renderXray(){
+    var box=$("xrThumbs"); box.innerHTML="";
+    box.setAttribute("aria-label",XUI[lang].views);
+    $("xrStage").setAttribute("aria-label",XUI[lang].open);
+    var pr=$("xrPrint"); pr.innerHTML="";
+    XR.forEach(function(v){
+      var b=document.createElement("button"); b.type="button"; b.className="xr-thumb";
+      b.setAttribute("aria-pressed",v===xrCur?"true":"false");
+      var ph=document.createElement("span"); ph.className="ph";
+      if(xrStore[v.id]){var t=document.createElement("img");t.src=xrStore[v.id];t.alt="";ph.appendChild(t);}
+      b.appendChild(ph);
+      var l=document.createElement("span"); l.textContent=v.name[lang]; b.appendChild(l);
+      b.addEventListener("click",function(){xrCur=v;renderXray();});
+      box.appendChild(b);
+      if(xrStore[v.id]){
+        var f=document.createElement("figure"), pi=document.createElement("img"), fc=document.createElement("figcaption");
+        pi.src=xrStore[v.id]; pi.alt=fmt(XUI[lang].img,{s:v.name[lang]}); fc.textContent=v.cap[lang];
+        f.appendChild(pi); f.appendChild(fc); pr.appendChild(f);
+      }
+    });
+    $("xrCaption").textContent=xrCur.cap[lang];
+    var xi=$("xrImg"), src=xrStore[xrCur.id];
+    xi.alt=fmt(XUI[lang].img,{s:xrCur.name[lang]});
+    if(src){ if(xi.getAttribute("src")!==src)xi.src=src; xi.style.visibility="visible"; $("xrLoading").style.display="none"; }
+    else { xi.style.visibility="hidden"; $("xrLoading").style.display="flex"; }
+  }
+  function openXray(){
+    var src=xrStore[xrCur.id]; if(!src)return;
+    var bi=$("xrBoxImg"); bi.src=src; bi.alt=fmt(XUI[lang].img,{s:xrCur.name[lang]});
+    $("xrBox").classList.add("open"); $("xrClose").focus();
+  }
+  function closeXray(){ $("xrBox").classList.remove("open"); $("xrStage").focus(); }
+  $("xrStage").addEventListener("click",openXray);
+  $("xrStage").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openXray();}});
+  $("xrBox").addEventListener("click",closeXray);
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("xrBox").classList.contains("open"))closeXray();});
+  function loadXray(){
+    XR.forEach(function(v){var s=document.createElement("script");s.src="slices/xr-"+v.id+"-0.js";s.async=true;document.body.appendChild(s);});
+  }
+
   // ---- nav highlight ----
   var links=document.querySelectorAll("nav.tabs a");
   if("IntersectionObserver" in window){
@@ -382,6 +471,7 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
       selectSeries(SERIES[0]);
     };
     document.body.appendChild(meta);
+    loadXray();
   }
   if(document.readyState==="complete")start(); else window.addEventListener("load",start);
 })();
