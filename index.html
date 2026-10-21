@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="data:,">
+<title>Cervical MRI Case Dashboard</title>
+<style>
+:root{--accent:#1f5f8b;--accent-soft:#e8f0f6;--text:#1d2329;--muted:#5b6670;--line:#dde3e8;--bg:#fbfcfd}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.55;font-size:16px}
+html[lang=en] .es{display:none!important}
+html[lang=es] .en{display:none!important}
+header.top{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line)}
+.bar{max-width:1040px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar h1{font-size:1.15rem;margin:0;flex:1 1 auto;color:var(--accent);font-weight:650}
+.langs{display:flex;border:1px solid var(--accent);border-radius:6px;overflow:hidden}
+.langs button{border:0;background:#fff;color:var(--accent);padding:6px 12px;font-weight:600;cursor:pointer;font-size:.9rem}
+.langs button[aria-pressed=true]{background:var(--accent);color:#fff}
+nav.tabs{max-width:1040px;margin:0 auto;padding:0 8px;display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav.tabs a{white-space:nowrap;padding:8px 10px;color:var(--muted);text-decoration:none;font-size:.92rem;border-bottom:3px solid transparent}
+nav.tabs a:hover,nav.tabs a.active{color:var(--accent);border-bottom-color:var(--accent)}
+main{max-width:1040px;margin:0 auto;padding:8px 16px 32px}
+section{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin:18px 0}
+section>h2{margin:0 0 12px;font-size:1.3rem;color:var(--accent)}
+h3{font-size:1.05rem;margin:18px 0 6px}
+.block{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:14px 0;break-inside:avoid;page-break-inside:avoid}
+.block h3{margin-top:0}
+.meta{color:var(--muted);font-size:.93rem;margin:0 0 8px}
+.note{border:1px solid #e3c98a;background:#fdf7e8;padding:10px 14px;border-radius:6px;font-size:.95rem}
+ul,ol{padding-left:1.3em}li{margin:4px 0}
+/* viewer */
+.viewer-controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.viewer-controls button{border:1px solid var(--line);background:#fff;padding:7px 11px;border-radius:6px;cursor:pointer;font-size:.9rem;color:var(--text)}
+.viewer-controls button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.stage{position:relative;background:#000;border-radius:6px;overflow:hidden;max-width:640px;margin:0 auto;aspect-ratio:1/1;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.stage img{width:100%;height:100%;object-fit:contain;display:block}
+.stage .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:.95rem;pointer-events:none}
+.slider-row{display:flex;align-items:center;gap:8px;max-width:640px;margin:10px auto 0}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+.slider-row button{border:1px solid var(--line);background:#fff;border-radius:6px;width:40px;height:34px;font-size:1.1rem;cursor:pointer;color:var(--accent)}
+.pos{text-align:center;margin:8px 0 2px;font-weight:600}
+.pos small{display:block;font-weight:400;color:var(--muted)}
+.caption{max-width:640px;margin:8px auto 0;color:var(--muted);font-size:.93rem;text-align:center}
+.hint{max-width:640px;margin:6px auto 0;color:var(--muted);font-size:.82rem;text-align:center}
+/* files */
+.files li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:10px 0;list-style:none;flex-wrap:wrap}
+.files ul{padding:0;margin:0}
+.badge{font-size:.8rem;background:#eef0f2;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:2px 10px;white-space:nowrap}
+footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);font-size:.88rem;text-align:center}
+@media (max-width:600px){section{padding:16px 14px}.bar h1{font-size:1rem}body{font-size:15.5px}}
+@media print{
+  header.top,#viewer,#files,.langs,nav.tabs{display:none!important}
+  body{background:#fff;font-size:11pt}
+  section{border:0;padding:0;margin:0 0 14pt}
+  .block{background:#fff;border-left:3px solid #555}
+  #plan,#research{break-before:page;page-break-before:always}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <h1><span class="en">Cervical MRI Case Dashboard</span><span class="es">Panel del caso de resonancia cervical</span></h1>
+    <div class="langs" role="group" aria-label="Language / Idioma">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    <a href="#viewer"><span class="en">MRI Viewer</span><span class="es">Visor de RM</span></a>
+    <a href="#reports"><span class="en">Reports</span><span class="es">Informes</span></a>
+    <a href="#plan"><span class="en">Diagnosis and Plan</span><span class="es">Diagnóstico y plan</span></a>
+    <a href="#research"><span class="en">Research Summary</span><span class="es">Resumen de la evidencia</span></a>
+    <a href="#files"><span class="en">Files</span><span class="es">Archivos</span></a>
+  </nav>
+</header>
+
+<main>
+<!-- 1. MRI VIEWER -->
+<section id="viewer">
+  <h2><span class="en">MRI Viewer</span><span class="es">Visor de RM</span></h2>
+  <div class="viewer-controls" id="seriesButtons" role="group" aria-label="Series"></div>
+  <div class="stage" id="stage" tabindex="0" aria-label="MRI slice">
+    <img id="sliceImg" alt="">
+    <div class="loading" id="loading"><span class="en">Loading images...</span><span class="es">Cargando imágenes...</span></div>
+  </div>
+  <div class="slider-row">
+    <button type="button" id="prevBtn" aria-label="Previous slice">&#8249;</button>
+    <input type="range" id="slider" min="1" max="18" value="9" aria-label="Slice">
+    <button type="button" id="nextBtn" aria-label="Next slice">&#8250;</button>
+  </div>
+  <div class="pos" id="posText" aria-live="polite"></div>
+  <p class="caption" id="caption"></p>
+  <p class="hint"><span class="en">Use the slider, mouse wheel, swipe, or the left/right arrow keys to move through the slices.</span><span class="es">Use el control deslizante, la rueda del mouse, deslice con el dedo o use las flechas izquierda/derecha del teclado para recorrer los cortes.</span></p>
+</section>
+
+<!-- 2. REPORTS -->
+<section id="reports">
+  <h2><span class="en">Reports</span><span class="es">Informes</span></h2>
+
+  <div class="block">
+    <h3><span class="en">MRI report</span><span class="es">Informe de resonancia magnética</span></h3>
+    <p class="meta en">Cervical spine MRI, Fairfax Radiology Centers, 6211 Centreville Rd.<br>Exam date: October 3, 2026. Read by Raymond Chang, MD.</p>
+    <p class="meta es">Resonancia magnética de columna cervical, Fairfax Radiology Centers, 6211 Centreville Rd.<br>Fecha del estudio: 3 de octubre de 2026. Informado por Raymond Chang, MD.</p>
+    <p class="en"><strong>Findings:</strong> Degenerative disc disease with bulging, most pronounced at C5-C6. Small right paracentral disc herniation at C5-C6, with mild spinal canal stenosis and severe right neural foraminal stenosis at C5-C6. Mild disc bulges at C2-C3 through C4-C5 without stenosis. C6-C7 and C7-T1 are clear. Spinal cord signal is normal.</p>
+    <p class="es"><strong>Hallazgos:</strong> Enfermedad degenerativa discal con protrusión (abombamiento) discal, más pronunciada en C5-C6. Pequeña hernia discal paracentral derecha en C5-C6, con estenosis leve del canal espinal y estenosis severa del foramen neural derecho en C5-C6. Protrusiones (abombamientos) discales leves desde C2-C3 hasta C4-C5, sin estenosis. C6-C7 y C7-T1 sin alteraciones. La señal de la médula espinal es normal.</p>
+  </div>
+
+  <div class="block">
+    <h3><span class="en">Cervical X-ray report</span><span class="es">Informe de radiografía cervical</span></h3>
+    <p class="meta en">Cervical spine X-ray, 3 views or less, Georgetown University Hospital.<br>Exam date: October 9, 2026. Ordered by Dr. Joseph Ferguson. Read by Ian B. Amber, MD.</p>
+    <p class="meta es">Radiografía de columna cervical, 3 proyecciones o menos, Georgetown University Hospital.<br>Fecha del estudio: 9 de octubre de 2026. Solicitada por el Dr. Joseph Ferguson. Informada por Ian B. Amber, MD.</p>
+    <p class="en"><strong>Findings:</strong> AP and lateral views. Vertebral bodies intact, grossly anatomical alignment with loss of cervical lordosis. No disproportionate disc space narrowing. Posterior osteophytes at C5-C6. Prevertebral soft tissues unremarkable.</p>
+    <p class="es"><strong>Hallazgos:</strong> Proyecciones anteroposterior (AP) y lateral. Cuerpos vertebrales íntegros, alineación globalmente anatómica con pérdida de la lordosis cervical. Sin pinzamiento (estrechamiento) desproporcionado de los espacios discales. Osteofitos posteriores en C5-C6. Partes blandas prevertebrales sin particularidades.</p>
+    <p class="en"><strong>Impression:</strong> No acute osseous abnormality.</p>
+    <p class="es"><strong>Impresión:</strong> Sin anomalía ósea aguda.</p>
+  </div>
+</section>
+
+<!-- 3. DIAGNOSIS AND PLAN -->
+<section id="plan">
+  <h2><span class="en">Diagnosis and Plan</span><span class="es">Diagnóstico y plan</span></h2>
+  <p class="meta en">Treating surgeon's assessment: Dr. Joseph Ferguson, spine surgeon, MedStar Georgetown University Hospital.</p>
+  <p class="meta es">Evaluación del cirujano tratante: Dr. Joseph Ferguson, cirujano de columna, MedStar Georgetown University Hospital.</p>
+
+  <div class="block">
+    <h3><span class="en">Surgeon's diagnosis</span><span class="es">Diagnóstico del cirujano</span></h3>
+    <p class="en">Disc disease at C5-C6 and C6-C7. On his own read of the MRI, he sees foraminal stenosis at both C5-C6 and C6-C7.</p>
+    <p class="es">Enfermedad discal en C5-C6 y C6-C7. En su propia lectura de la resonancia magnética, observa estenosis foraminal tanto en C5-C6 como en C6-C7.</p>
+    <p class="note en"><strong>Note:</strong> This differs from the radiologist's written report, which calls C6-C7 clear.</p>
+    <p class="note es"><strong>Nota:</strong> Esto difiere del informe escrito del radiólogo, que describe C6-C7 sin alteraciones.</p>
+  </div>
+
+  <div class="block">
+    <h3><span class="en">Surgeon's plan</span><span class="es">Plan del cirujano</span></h3>
+    <p class="en">Two-level cervical disc replacement at C5-C6 and C6-C7 using the NuVasive Simplify cervical artificial disc.</p>
+    <p class="es">Reemplazo de disco cervical en dos niveles, C5-C6 y C6-C7, con el disco cervical artificial Simplify de NuVasive.</p>
+  </div>
+
+  <div class="block">
+    <h3><span class="en">Recovery guidance given by the surgeon</span><span class="es">Indicaciones de recuperación dadas por el cirujano</span></h3>
+    <ul class="en">
+      <li>Six weeks of lifting restrictions.</li>
+      <li>Soft collar for comfort only; movement is encouraged.</li>
+      <li>No driving while taking narcotics (about two weeks).</li>
+      <li>Desk work possible after one to two weeks.</li>
+      <li>Stay local: no flying or travel for six weeks.</li>
+      <li>Physical therapy may start at about six weeks.</li>
+    </ul>
+    <ul class="es">
+      <li>Seis semanas de restricción para levantar peso.</li>
+      <li>Collar blando solo para comodidad; se recomienda el movimiento.</li>
+      <li>No conducir mientras tome narcóticos (aproximadamente dos semanas).</li>
+      <li>Es posible retomar el trabajo de escritorio después de una a dos semanas.</li>
+      <li>Permanecer en la zona: no volar ni viajar durante seis semanas.</li>
+      <li>La fisioterapia (kinesiología) puede comenzar aproximadamente a las seis semanas.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4. RESEARCH SUMMARY -->
+<section id="research">
+  <h2><span class="en">Research Summary</span><span class="es">Resumen de la evidencia</span></h2>
+  <p class="en">A short, neutral comparison of cervical artificial discs and the open questions in this case. It does not recommend for or against surgery; it is meant to inform a decision the patient makes with his doctors.</p>
+  <p class="es">Una comparación breve y neutral de los discos cervicales artificiales y de las preguntas abiertas en este caso. No recomienda a favor ni en contra de la cirugía; su objetivo es informar una decisión que el paciente toma junto con sus médicos.</p>
+
+  <h3><span class="en">Devices</span><span class="es">Dispositivos</span></h3>
+  <ul class="en">
+    <li><strong>Simplify (NuVasive):</strong> PEEK endplates with titanium coating, mobile ceramic core. FDA approved for one level in September 2020 and for two contiguous levels in April 2021. In the two-level study, 24-month composite success was about 87% versus about 77% for fusion (ACDF); serious adverse events were 18% versus 37%. Five-year data was presented at NASS 2023 (conference data, not yet peer-reviewed).</li>
+    <li><strong>Mobi-C:</strong> the longest published follow-up, with peer-reviewed 10-year data.</li>
+    <li><strong>Prestige LP:</strong> peer-reviewed 7-year data.</li>
+    <li><strong>ProDisc-C:</strong> another established option.</li>
+  </ul>
+  <ul class="es">
+    <li><strong>Simplify (NuVasive):</strong> placas terminales de PEEK con recubrimiento de titanio y núcleo cerámico móvil. Aprobado por la FDA para un nivel en septiembre de 2020 y para dos niveles contiguos en abril de 2021. En el estudio de dos niveles, el éxito compuesto a 24 meses fue de aproximadamente 87 % frente a aproximadamente 77 % con artrodesis (fusión, ACDF); los eventos adversos graves fueron 18 % frente a 37 %. Los datos a cinco años se presentaron en NASS 2023 (datos de congreso, aún no revisados por pares).</li>
+    <li><strong>Mobi-C:</strong> el seguimiento publicado más prolongado, con datos a 10 años revisados por pares.</li>
+    <li><strong>Prestige LP:</strong> datos a 7 años revisados por pares.</li>
+    <li><strong>ProDisc-C:</strong> otra opción establecida.</li>
+  </ul>
+
+  <h3><span class="en">What the evidence does and does not show</span><span class="es">Qué muestra y qué no muestra la evidencia</span></h3>
+  <ul class="en">
+    <li>There are no head-to-head randomized trials comparing these devices directly.</li>
+    <li>There is no high-quality evidence supporting replacement of a radiographically normal adjacent level "just in case."</li>
+    <li>Posterior foraminotomy is an alternative worth asking about for one-sided foraminal stenosis.</li>
+    <li>Heterotopic ossification can gradually restrict motion at a replaced level or fuse it.</li>
+  </ul>
+  <ul class="es">
+    <li>No existen ensayos aleatorizados que comparen directamente estos dispositivos entre sí.</li>
+    <li>No hay evidencia de alta calidad que respalde el reemplazo de un nivel adyacente radiológicamente normal "por las dudas".</li>
+    <li>La foraminotomía posterior es una alternativa sobre la que vale la pena consultar en caso de estenosis foraminal unilateral.</li>
+    <li>La osificación heterotópica puede restringir gradualmente el movimiento en un nivel reemplazado o fusionarlo.</li>
+  </ul>
+
+  <div class="block">
+    <h3><span class="en">Key questions for any surgeon on this case</span><span class="es">Preguntas clave para cualquier cirujano que evalúe este caso</span></h3>
+    <ol class="en">
+      <li>Is C6-C7 actually abnormal?</li>
+      <li>Why two levels instead of C5-C6 alone, or a foraminotomy?</li>
+      <li>Why this device instead of one with longer published follow-up?</li>
+      <li>What are your personal complication and revision rates?</li>
+      <li>If the implant fails, what is the revision plan?</li>
+    </ol>
+    <ol class="es">
+      <li>¿Es C6-C7 realmente anormal?</li>
+      <li>¿Por qué dos niveles en lugar de solo C5-C6, o una foraminotomía?</li>
+      <li>¿Por qué este dispositivo en lugar de uno con un seguimiento publicado más prolongado?</li>
+      <li>¿Cuáles son sus tasas personales de complicaciones y de revisión?</li>
+      <li>Si el implante falla, ¿cuál es el plan de revisión?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 5. FILES -->
+<section id="files" class="files">
+  <h2><span class="en">Files</span><span class="es">Archivos</span></h2>
+  <ul>
+    <li><span><span class="en">Full MRI images (DICOM zip)</span><span class="es">Imágenes completas de la resonancia (DICOM, zip)</span></span><span class="badge"><span class="en">Coming soon</span><span class="es">Próximamente</span></span></li>
+    <li><span><span class="en">MRI report (PDF)</span><span class="es">Informe de resonancia magnética (PDF)</span></span><span class="badge"><span class="en">Coming soon</span><span class="es">Próximamente</span></span></li>
+    <li><span><span class="en">Cervical X-ray report (PDF)</span><span class="es">Informe de radiografía cervical (PDF)</span></span><span class="badge"><span class="en">Coming soon</span><span class="es">Próximamente</span></span></li>
+  </ul>
+</section>
+</main>
+
+<footer>
+  <span class="en">Shared by the patient for second-opinion review. This page is informational and is not medical advice.</span>
+  <span class="es">Compartido por el paciente para revisión de segunda opinión. Esta página es informativa y no constituye asesoramiento médico.</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var TITLES={en:"Cervical MRI Case Dashboard",es:"Panel del caso de resonancia cervical"};
+  var SERIES=[
+    {id:"sag-t2",name:{en:"Sagittal T2",es:"Sagital T2"},axis:"sag",
+     cap:{en:"Sagittal T2. Side view of the neck; scroll to move from one side to the other.",es:"Sagital T2. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"sag-t1",name:{en:"Sagittal T1",es:"Sagital T1"},axis:"sag",
+     cap:{en:"Sagittal T1. Side view of the neck; scroll to move from one side to the other.",es:"Sagital T1. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"sag-ir",name:{en:"Sagittal IR / STIR",es:"Sagital IR / STIR"},axis:"sag",
+     cap:{en:"Sagittal IR (STIR, inversion recovery). Side view of the neck; scroll to move from one side to the other.",es:"Sagital IR (STIR, inversión-recuperación). Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"ax-t2",name:{en:"Axial T2",es:"Axial T2"},axis:"ax",
+     cap:{en:"Axial T2. Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"Axial T2. Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}},
+    {id:"ax-t2star",name:{en:"Axial T2*",es:"Axial T2*"},axis:"ax",
+     cap:{en:"Axial T2* (T2-star). Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"Axial T2* (T2 estrella). Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}}
+  ];
+  var THIRD={en:{lower:"Lower third of the neck",middle:"Middle third of the neck",upper:"Upper third of the neck"},
+             es:{lower:"Tercio inferior del cuello",middle:"Tercio medio del cuello",upper:"Tercio superior del cuello"}};
+  var UI={en:{slice:"Slice {n} of {m}",mid:"Midline",mm:"{d} mm from midline",prev:"Previous slice",next:"Next slice",series:"Series",img:"{s}, slice {n} of {m}"},
+          es:{slice:"Corte {n} de {m}",mid:"Línea media",mm:"{d} mm de la línea media",prev:"Corte anterior",next:"Corte siguiente",series:"Serie",img:"{s}, corte {n} de {m}"}};
+
+  var lang="en";
+  var store={};          // series id -> array of data URIs
+  var requested={};      // series id -> true once scripts injected
+  var cur=SERIES[0], idx=0;
+  var $=function(id){return document.getElementById(id);};
+  var img=$("sliceImg"), slider=$("slider"), loading=$("loading");
+
+  function fmt(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k];});}
+  function manifest(id){return (window.CASE_MANIFEST||{})[id]||{count:0,chunks:0,chunk:6};}
+  function count(){return manifest(cur.id).count;}
+
+  // ---- language ----
+  function setLang(l){
+    lang=(l==="es")?"es":"en";
+    document.documentElement.lang=lang;
+    document.title=TITLES[lang];
+    var bs=document.querySelectorAll(".langs button");
+    for(var i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-lang")===lang?"true":"false");
+    try{localStorage.setItem("caseLang",lang);}catch(e){}
+    $("prevBtn").setAttribute("aria-label",UI[lang].prev);
+    $("nextBtn").setAttribute("aria-label",UI[lang].next);
+    $("seriesButtons").setAttribute("aria-label",UI[lang].series);
+    renderSeriesButtons(); render();
+  }
+
+  // ---- loading ----
+  window.caseAddSlices=function(id,start,arr){
+    var a=store[id]||(store[id]=[]);
+    for(var i=0;i<arr.length;i++){a[start+i]=arr[i];var p=new Image();p.src=arr[i];}
+    if(id===cur.id)render();
+  };
+  function requestSeries(id){
+    if(requested[id])return; requested[id]=true;
+    var m=manifest(id);
+    for(var c=0;c<m.chunks;c++){
+      var s=document.createElement("script");
+      s.src="slices/"+id+"-"+c+".js"; s.async=true;
+      document.body.appendChild(s);
+    }
+  }
+
+  // ---- viewer ----
+  function renderSeriesButtons(){
+    var box=$("seriesButtons"); box.innerHTML="";
+    SERIES.forEach(function(s){
+      var b=document.createElement("button");
+      b.type="button"; b.textContent=s.name[lang];
+      b.setAttribute("aria-pressed",s===cur?"true":"false");
+      b.addEventListener("click",function(){selectSeries(s);});
+      box.appendChild(b);
+    });
+  }
+  function selectSeries(s){
+    cur=s; var m=count();
+    slider.max=String(Math.max(m,1));
+    idx=s.axis==="sag"?midIndex(s.id,m):Math.floor((m-1)/2);
+    requestSeries(s.id);
+    renderSeriesButtons(); render();
+  }
+  function midIndex(id,m){
+    var L=(window.CASE_LABELS||{})[id];
+    if(L){for(var i=0;i<L.length;i++)if(L[i]===0)return i;}
+    return Math.floor((m-1)/2);
+  }
+  function posLabel(){
+    var L=(window.CASE_LABELS||{})[cur.id]; if(!L||L[idx]==null)return "";
+    var v=L[idx];
+    if(typeof v==="number")return v===0?UI[lang].mid:fmt(UI[lang].mm,{d:v.toFixed(1)});
+    return THIRD[lang][v]||"";
+  }
+  function render(){
+    var m=count(); if(!m)return;
+    if(idx<0)idx=0; if(idx>m-1)idx=m-1;
+    slider.value=String(idx+1);
+    var p=posLabel();
+    $("posText").innerHTML=fmt(UI[lang].slice,{n:idx+1,m:m})+(p?"<small>"+p+"</small>":"");
+    $("caption").textContent=cur.cap[lang];
+    var src=(store[cur.id]||[])[idx];
+    if(src){ if(img.getAttribute("src")!==src)img.src=src; img.style.visibility="visible"; loading.style.display="none"; }
+    else { img.style.visibility="hidden"; loading.style.display="flex"; }
+    img.alt=fmt(UI[lang].img,{s:cur.name[lang],n:idx+1,m:m});
+  }
+  function step(d){var m=count(); var n=Math.min(m-1,Math.max(0,idx+d)); if(n!==idx){idx=n;render();}}
+
+  slider.addEventListener("input",function(){idx=parseInt(slider.value,10)-1;render();});
+  $("prevBtn").addEventListener("click",function(){step(-1);});
+  $("nextBtn").addEventListener("click",function(){step(1);});
+  var stage=$("stage"), wheelAcc=0;
+  stage.addEventListener("wheel",function(e){
+    e.preventDefault(); wheelAcc+=e.deltaY;
+    if(Math.abs(wheelAcc)>=40){step(wheelAcc>0?1:-1);wheelAcc=0;}
+  },{passive:false});
+  var tx=null,ty=null,moved=0;
+  stage.addEventListener("touchstart",function(e){if(e.touches.length===1){tx=e.touches[0].clientX;ty=e.touches[0].clientY;moved=0;}},{passive:true});
+  stage.addEventListener("touchmove",function(e){
+    if(tx===null||e.touches.length!==1)return;
+    var dx=e.touches[0].clientX-tx, dy=e.touches[0].clientY-ty;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>=24){ if(e.cancelable)e.preventDefault(); step(dx<0?1:-1); tx=e.touches[0].clientX; ty=e.touches[0].clientY; }
+  },{passive:false});
+  stage.addEventListener("touchend",function(){tx=null;});
+  document.addEventListener("keydown",function(e){
+    var t=e.target, tag=t&&t.tagName;
+    if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA")return;
+    if(e.key==="ArrowRight"){step(1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"){step(-1);e.preventDefault();}
+  });
+
+  // ---- nav highlight ----
+  var links=document.querySelectorAll("nav.tabs a");
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){for(var i=0;i<links.length;i++)links[i].classList.toggle("active",links[i].getAttribute("href")==="#"+en.target.id);}});},{rootMargin:"-40% 0px -55% 0px"});
+    document.querySelectorAll("main section").forEach(function(s){io.observe(s);});
+  }
+
+  // ---- init ----
+  var bs=document.querySelectorAll(".langs button");
+  for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){setLang(this.getAttribute("data-lang"));});
+  var initial="en";
+  var q=/[?&]lang=(en|es)/.exec(location.search);
+  if(q)initial=q[1];
+  else{ try{var sv=localStorage.getItem("caseLang"); if(sv)initial=sv; else if((navigator.language||"").toLowerCase().indexOf("es")===0)initial="es";}catch(e){} }
+  setLang(initial);
+  function start(){
+    var meta=document.createElement("script");
+    meta.src="slices/meta.js";
+    meta.onload=function(){
+      selectSeries(SERIES[0]);
+    };
+    document.body.appendChild(meta);
+  }
+  if(document.readyState==="complete")start(); else window.addEventListener("load",start);
+})();
+</script>
+</body>
+</html>
