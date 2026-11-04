@@ -89,7 +89,7 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
     </div>
   </div>
   <nav class="tabs" aria-label="Sections">
-    <a href="#viewer"><span class="en">MRI Viewer</span><span class="es">Visor de RM</span></a>
+    <a href="#viewer"><span class="en">MRI and CT Viewer</span><span class="es">Visor de RM y TC</span></a>
     <a href="#xray"><span class="en">X-ray Viewer</span><span class="es">Visor de radiografías</span></a>
     <a href="#reports"><span class="en">Reports</span><span class="es">Informes</span></a>
     <a href="#plan"><span class="en">Diagnosis and Plan</span><span class="es">Diagnóstico y plan</span></a>
@@ -101,7 +101,9 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
 <main>
 <!-- 1. MRI VIEWER -->
 <section id="viewer">
-  <h2><span class="en">MRI Viewer</span><span class="es">Visor de RM</span></h2>
+  <h2><span class="en">MRI and CT Viewer</span><span class="es">Visor de RM y TC</span></h2>
+  <p class="meta en">MRI (magnetic resonance): cervical spine, Fairfax Radiology Centers. Exam date: October 3, 2026.<br>CT (computed tomography): cervical spine without contrast, Fairfax Radiology Centers of Ballston. Exam date: October 26, 2026.<br>Choose a series below; MRI series are marked “MRI” and CT series are marked “CT”.</p>
+  <p class="meta es">RM (resonancia magnética): columna cervical, Fairfax Radiology Centers. Fecha del estudio: 3 de octubre de 2026.<br>TC (tomografía computada): columna cervical sin contraste, Fairfax Radiology Centers de Ballston. Fecha del estudio: 26 de octubre de 2026.<br>Elija una serie abajo; las series de resonancia están marcadas “RM” y las de tomografía, “TC”.</p>
   <div class="viewer-controls" id="seriesButtons" role="group" aria-label="Series"></div>
   <div class="stage" id="stage" tabindex="0" aria-label="MRI slice">
     <img id="sliceImg" alt="">
@@ -257,9 +259,11 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
 <section id="files" class="files">
   <h2><span class="en">Files</span><span class="es">Archivos</span></h2>
   <ul>
-    <li><span><span class="en">Full MRI images (DICOM zip)</span><span class="es">Imágenes completas de la resonancia (DICOM, zip)</span></span><span class="badge"><span class="en">Coming soon</span><span class="es">Próximamente</span></span></li>
-    <li><span><span class="en">MRI report (PDF)</span><span class="es">Informe de resonancia magnética (PDF)</span></span><span class="badge"><span class="en">Coming soon</span><span class="es">Próximamente</span></span></li>
+    <li><span><span class="en">Full MRI images, cervical spine, October 3, 2026 (DICOM, zip, ~67 MB)</span><span class="es">Imágenes completas de la resonancia de columna cervical, 3 de octubre de 2026 (DICOM, zip, ~67 MB)</span></span><a class="badge" href="https://drive.usercontent.google.com/download?id=1ltyvwgpbXXXjdEu0Izw1zgexviEGsp1C&amp;export=download&amp;confirm=t" target="_blank" rel="noopener"><span class="en">Download</span><span class="es">Descargar</span></a></li>
+    <li><span><span class="en">MRI report, Fairfax Radiology Centers (PDF, 3 pages, ~58 KB)</span><span class="es">Informe de resonancia magnética, Fairfax Radiology Centers (PDF, 3 páginas, ~58 KB)</span></span><a class="badge" href="https://drive.google.com/uc?export=download&amp;id=1gdB7Bc2f0k_ROeV69bZU1hou6N1G3ULu" target="_blank" rel="noopener"><span class="en">Download</span><span class="es">Descargar</span></a></li>
+    <li><span><span class="en">Full CT images, cervical spine, October 26, 2026 (DICOM, zip, ~244 MB)</span><span class="es">Imágenes completas de la tomografía de columna cervical, 26 de octubre de 2026 (DICOM, zip, ~244 MB)</span></span><a class="badge" href="https://drive.usercontent.google.com/download?id=1l_iBGo3oAV8qpDAVd52mu7OLRtSB0JX7&amp;export=download&amp;confirm=t" target="_blank" rel="noopener"><span class="en">Download</span><span class="es">Descargar</span></a></li>
     <li><span><span class="en">Cervical X-ray report (PDF)</span><span class="es">Informe de radiografía cervical (PDF)</span></span><span class="badge"><span class="en">Coming soon</span><span class="es">Próximamente</span></span></li>
+    <li><span><span class="en">Bone density test (DXA), Fairfax Radiology Centers: images and report</span><span class="es">Densitometría ósea (DXA), Fairfax Radiology Centers: imágenes e informe</span></span><span class="badge"><span class="en">Pending</span><span class="es">Pendiente</span></span></li>
   </ul>
 </section>
 </main>
@@ -274,16 +278,27 @@ footer{max-width:1040px;margin:0 auto;padding:12px 16px 40px;color:var(--muted);
   "use strict";
   var TITLES={en:"Cervical MRI Case Dashboard",es:"Panel del caso de resonancia cervical"};
   var SERIES=[
-    {id:"sag-t2",name:{en:"Sagittal T2",es:"Sagital T2"},axis:"sag",
-     cap:{en:"Sagittal T2. Side view of the neck; scroll to move from one side to the other.",es:"Sagital T2. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
-    {id:"sag-t1",name:{en:"Sagittal T1",es:"Sagital T1"},axis:"sag",
-     cap:{en:"Sagittal T1. Side view of the neck; scroll to move from one side to the other.",es:"Sagital T1. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
-    {id:"sag-ir",name:{en:"Sagittal IR / STIR",es:"Sagital IR / STIR"},axis:"sag",
-     cap:{en:"Sagittal IR (STIR, inversion recovery). Side view of the neck; scroll to move from one side to the other.",es:"Sagital IR (STIR, inversión-recuperación). Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
-    {id:"ax-t2",name:{en:"Axial T2",es:"Axial T2"},axis:"ax",
-     cap:{en:"Axial T2. Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"Axial T2. Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}},
-    {id:"ax-t2star",name:{en:"Axial T2*",es:"Axial T2*"},axis:"ax",
-     cap:{en:"Axial T2* (T2-star). Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"Axial T2* (T2 estrella). Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}}
+    {id:"sag-t2",name:{en:"MRI · Sagittal T2",es:"RM · Sagital T2"},axis:"sag",
+     cap:{en:"MRI, October 3, 2026. Sagittal T2. Side view of the neck; scroll to move from one side to the other.",es:"RM, 3 de octubre de 2026. Sagital T2. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"sag-t1",name:{en:"MRI · Sagittal T1",es:"RM · Sagital T1"},axis:"sag",
+     cap:{en:"MRI, October 3, 2026. Sagittal T1. Side view of the neck; scroll to move from one side to the other.",es:"RM, 3 de octubre de 2026. Sagital T1. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"sag-ir",name:{en:"MRI · Sagittal IR / STIR",es:"RM · Sagital IR / STIR"},axis:"sag",
+     cap:{en:"MRI, October 3, 2026. Sagittal IR (STIR, inversion recovery). Side view of the neck; scroll to move from one side to the other.",es:"RM, 3 de octubre de 2026. Sagital IR (STIR, inversión-recuperación). Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"ax-t2",name:{en:"MRI · Axial T2",es:"RM · Axial T2"},axis:"ax",
+     cap:{en:"MRI, October 3, 2026. Axial T2. Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"RM, 3 de octubre de 2026. Axial T2. Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}},
+    {id:"ax-t2star",name:{en:"MRI · Axial T2*",es:"RM · Axial T2*"},axis:"ax",
+     cap:{en:"MRI, October 3, 2026. Axial T2* (T2-star). Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"RM, 3 de octubre de 2026. Axial T2* (T2 estrella). Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}}
+    ,
+    {id:"ct-sag-bone",name:{en:"CT · Sagittal bone",es:"TC · Sagital ósea"},axis:"sag",
+     cap:{en:"CT, October 26, 2026. Sagittal, bone window. Side view of the neck; scroll to move from one side to the other.",es:"TC, 26 de octubre de 2026. Sagital, ventana ósea. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"ct-sag-st",name:{en:"CT · Sagittal soft tissue",es:"TC · Sagital partes blandas"},axis:"sag",
+     cap:{en:"CT, October 26, 2026. Sagittal, soft-tissue window. Side view of the neck; scroll to move from one side to the other.",es:"TC, 26 de octubre de 2026. Sagital, ventana de partes blandas. Vista lateral del cuello; desplácese para moverse de un lado al otro."}},
+    {id:"ct-ax-bone",name:{en:"CT · Axial bone",es:"TC · Axial ósea"},axis:"ax",
+     cap:{en:"CT, October 26, 2026. Axial, bone window (every 4 mm). Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"TC, 26 de octubre de 2026. Axial, ventana ósea (cada 4 mm). Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}},
+    {id:"ct-ax-st",name:{en:"CT · Axial soft tissue",es:"TC · Axial partes blandas"},axis:"ax",
+     cap:{en:"CT, October 26, 2026. Axial, soft-tissue window (every 4 mm). Cross-sectional view of the neck; scroll to move up and down along the neck.",es:"TC, 26 de octubre de 2026. Axial, ventana de partes blandas (cada 4 mm). Vista en corte transversal del cuello; desplácese para moverse hacia arriba y hacia abajo a lo largo del cuello."}},
+    {id:"ct-cor-bone",name:{en:"CT · Coronal bone",es:"TC · Coronal ósea"},axis:"cor",
+     cap:{en:"CT, October 26, 2026. Coronal, bone window. Front view of the neck; scroll to move from front to back.",es:"TC, 26 de octubre de 2026. Coronal, ventana ósea. Vista frontal del cuello; desplácese para moverse de adelante hacia atrás."}}
   ];
   var THIRD={en:{lower:"Lower third of the neck",middle:"Middle third of the neck",upper:"Upper third of the neck"},
              es:{lower:"Tercio inferior del cuello",middle:"Tercio medio del cuello",upper:"Tercio superior del cuello"}};
